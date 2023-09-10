@@ -8,6 +8,10 @@
         >
       </div>
       <p v-if="isLoading">Loading...</p>
+      <p v-else-if="!isLoading && error">{{ error }}</p>
+      <p v-else-if="!isLoading && (!results || results.length === 0)">
+        No experience yet.
+      </p>
       <ul v-else>
         <survey-result
           v-for="result in results"
@@ -31,12 +35,14 @@ export default {
     return {
       results: [],
       isLoading: false,
+      error: null,
     };
   },
 
   methods: {
     loadExperience() {
       this.isLoading = true;
+      this.error = null;
       fetch('https://vuejs-http-46d2d-default-rtdb.firebaseio.com/survey.json')
         .then((response) => {
           if (response.ok) {
@@ -54,6 +60,10 @@ export default {
             });
           }
           this.results = result;
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          this.error = error.message;
         });
     },
   },
